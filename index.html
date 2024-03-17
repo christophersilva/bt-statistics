@@ -32,11 +32,12 @@
         }
 
         .play-btn {
-            padding: 0 15px;
+            padding: 0 10px;
             font-weight: 900;
             font-size: 30px;
             border-radius: 3px;
             vertical-align: middle;
+            height: 34px;
         }
 
         .player-row {
@@ -93,7 +94,7 @@
             display: block;
             height: 80px;
             margin-bottom: 15px;
-            font-size: 50px;
+            font-size: 40px;
         }
 
         .config-btn {
@@ -114,11 +115,14 @@
         }
 
         .column-name {
-            width: 80px;
+            width: 70px;
         }
 
         .stat-column {
-            width: calc((100% - 80px) / 3);
+            width: calc((100% - 70px) / 3);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
         }
 
         .team-row {
@@ -226,7 +230,7 @@
         }
 
         function finishGame() {
-            
+
         }
     </script>
     <div id="config">
@@ -246,7 +250,7 @@
     </div>
     <div id="statistics" class="hide">
         <div class="header">
-            <div class="column-name bg-grey cell">JOGADOR</div>
+            <div class="column-name bg-grey cell">NOME</div>
             <div class="stat-column bg-blue cell">SAQUE</div>
             <div class="stat-column bg-orange cell">1ª BOLA</div>
             <div class="stat-column bg-blue cell">SMASH</div>
@@ -316,9 +320,6 @@
                 <button class="play-btn btn-error bg-red" onClick="wrong('player4', 'stat3', this)">0</button>
                 <button class="play-btn btn-success bg-green" onClick="right('player4', 'stat3', this)">0</button>
             </div>
-        </div>
-        <div style="padding: 20px;">
-            <button onClick="finishGame()" class="config-btn bg-green">FINALIZAR</button>
         </div>
     </div>
 
