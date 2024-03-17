@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            border: 0;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .stats {
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .stats th {
+            height: 50px;
+        }
+
+        .team-row td {
+            width: 100%;
+            text-align: center;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .play-btn {
+            padding: 0 15px;
+            font-weight: 900;
+            font-size: 30px;
+            border-radius: 3px;
+            vertical-align: middle;
+        }
+
+        .player-row {
+            height: 60px;
+        }
+
+        .player-name {
+            width: 75px;
+        }
+
+        .bg-orange {
+            background-color: #e17055;
+            color: #fff;
+        }
+    
+        .bg-green {
+            background-color: #00b894;
+            color: #fff;
+        }
+
+        .bg-purple {
+            background-color: #6c5ce7;
+            color: #fff;
+        }
+
+        .bg-blue {
+            background-color: #0984e3;
+            color: #fff;
+        }
+
+        .bg-red {
+            background-color: #d63031;
+            color: #fff;
+        }
+
+        .bg-grey {
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        #config {
+            padding: 20px;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #000;
+            width: 100%;
+            border-radius: 3px;
+            display: block;
+            height: 80px;
+            margin-bottom: 15px;
+            font-size: 50px;
+        }
+
+        .config-btn {
+            width: 100%;
+            padding: 30px;
+            font-size: 30px;
+            font-weight: 900;
+        }
+
+        .header {
+            display: flex;
+            font-weight: 900;
+            line-height: 60px;
+        }
+
+        .cell { 
+            height: 60px;
+        }
+
+        .column-name {
+            width: 80px;
+        }
+
+        .stat-column {
+            width: calc((100% - 80px) / 3);
+        }
+
+        .team-row {
+            font-weight: 900;
+            height: 40px;
+            line-height: 40px;
+            padding-left: 80px;
+        }
+
+        .player-row {
+            display: flex;
+            line-height: 60px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var statistics = {
+            player1: {
+                name: 'Jogador 1',
+                stat1: {
+                    right: 0,
+                    wrong: 0,
+                },
+                stat2: {
+                    right: 0,
+                    wrong: 0,
+                },
+                stat3: {
+                    right: 0,
+                    wrong: 0,
+                },
+            },
+            player2: {
+                name: 'Jogador 2',
+                stat1: {
+                    right: 0,
+                    wrong: 0,
+                },
+                stat2: {
+                    right: 0,
+                    wrong: 0,
+                },
+                stat3: {
+                    right: 0,
+                    wrong: 0,
+                },
+            },
+            player3: {
+                name: 'Jogador 3',
+                stat1: {
+                    right: 0,
+                    wrong: 0,
+                },
+                stat2: {
+                    right: 0,
+                    wrong: 0,
+                },
+                stat3: {
+                    right: 0,
+                    wrong: 0,
+                },
+            },
+            player4: {
+                name: 'Jogador 4',
+                stat1: {
+                    right: 0,
+                    wrong: 0,
+                },
+                stat2: {
+                    right: 0,
+                    wrong: 0,
+                },
+                stat3: {
+                    right: 0,
+                    wrong: 0,
+                },
+            }
+        };
+
+        function startGame() {
+            event.preventDefault();
+            document.getElementById('config').classList.add('hide');
+
+            var names = document.getElementsByClassName('player-name-config');
+            for (var x = 0; x < names.length; x++) {
+                if (names[x].value) {
+                    var id = names[x].id;
+                    var name = names[x].value;
+                    document.getElementById(id + '-name').innerText = name;
+                    statistics[id.replace('-', '')].name = name;
+                }
+            }
+            document.getElementById('statistics').classList.remove('hide');
+        }
+
+        function wrong(player, stat, btn) {
+            statistics[player][stat].wrong++;
+            btn.innerText = statistics[player][stat].wrong;
+        }
+
+        function right(player, stat, btn) {
+            statistics[player][stat].right++;
+            btn.innerText = statistics[player][stat].right;
+        }
+
+        function finishGame() {
+            
+        }
+    </script>
+    <div id="config">
+        <form>
+            <h1>Equipe 1</h1>
+            <div>
+                <input id="player-1" class="player-name-config" type="text" placeholder="Jogador 1">
+                <input id="player-2" class="player-name-config" type="text" placeholder="Jogador 2">
+            </div>
+            <h1>Equipe 2</h1>
+            <div>
+                <input id="player-3" class="player-name-config" type="text" placeholder="Jogador 3">
+                <input id="player-4" class="player-name-config" type="text" placeholder="Jogador 4">
+            </div>
+            <button onClick="startGame()" class="config-btn bg-green">INICIAR</button>
+        </form>
+    </div>
+    <div id="statistics" class="hide">
+        <div class="header">
+            <div class="column-name bg-grey cell">JOGADOR</div>
+            <div class="stat-column bg-blue cell">SAQUE</div>
+            <div class="stat-column bg-orange cell">1ª BOLA</div>
+            <div class="stat-column bg-blue cell">SMASH</div>
+        </div>
+        <div class="team-row bg-grey">
+            Equipe 1
+        </div>
+        <div class="player-row">
+            <div class="column-name bg-grey cell" id="player-1-name">J. 1</div>
+            <div class="stat-column bg-blue cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player1', 'stat1', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player1', 'stat1', this)">0</button>
+            </div>
+            <div class="stat-column bg-orange cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player1', 'stat2', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player1', 'stat2', this)">0</button>
+            </div>
+            <div class="stat-column bg-blue cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player1', 'stat3', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player1', 'stat3', this)">0</button>
+            </div>
+        </div>
+        <div class="player-row">
+            <div class="column-name bg-grey cell" id="player-2-name">J. 2</div>
+            <div class="stat-column bg-blue cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player2', 'stat1', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player2', 'stat1', this)">0</button>
+            </div>
+            <div class="stat-column bg-orange cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player2', 'stat2', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player2', 'stat2', this)">0</button>
+            </div>
+            <div class="stat-column bg-blue cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player2', 'stat3', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player2', 'stat3', this)">0</button>
+            </div>
+        </div>
+        <div class="team-row bg-grey">
+            Equipe 2
+        </div>
+        <div class="player-row">
+            <div class="column-name bg-grey cell" id="player-3-name">J. 3</div>
+            <div class="stat-column bg-blue cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player3', 'stat1', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player3', 'stat1', this)">0</button>
+            </div>
+            <div class="stat-column bg-orange cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player3', 'stat2', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player3', 'stat2', this)">0</button>
+            </div>
+            <div class="stat-column bg-blue cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player3', 'stat3', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player3', 'stat3', this)">0</button>
+            </div>
+        </div>
+        <div class="player-row">
+            <div class="column-name bg-grey cell" id="player-4-name">J. 4</div>
+            <div class="stat-column bg-blue cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player4', 'stat1', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player4', 'stat1', this)">0</button>
+            </div>
+            <div class="stat-column bg-orange cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player4', 'stat2', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player4', 'stat2', this)">0</button>
+            </div>
+            <div class="stat-column bg-blue cell">
+                <button class="play-btn btn-error bg-red" onClick="wrong('player4', 'stat3', this)">0</button>
+                <button class="play-btn btn-success bg-green" onClick="right('player4', 'stat3', this)">0</button>
+            </div>
+        </div>
+        <div style="padding: 20px;">
+            <button onClick="finishGame()" class="config-btn bg-green">FINALIZAR</button>
+        </div>
+    </div>
+
+    <div id="results" class="hide">
+        
+    </div>
+</body>
+</html>
