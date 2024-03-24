@@ -31,11 +31,14 @@
             color: #fff;
         }
 
+        .btn {
+            border-radius: 3px;
+        }
+
         .play-btn {
             padding: 0 10px;
             font-weight: 900;
             font-size: 30px;
-            border-radius: 3px;
             vertical-align: middle;
             height: 34px;
         }
@@ -79,7 +82,7 @@
         }
 
         .hide {
-            display: none;
+            display: none !important;
         }
 
         #config {
@@ -137,7 +140,7 @@
             line-height: 60px;
         }
 
-        .score {
+        .teams-score {
             font-size: 25px;
             display: flex;
             align-items: center;
@@ -145,16 +148,60 @@
             margin-top: 10px;
         }
 
+        .total-score {
+            font-size: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+
+        .score {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            width: calc(100% - 210px);
+        }
+
+        .score > div {
+            display: flex;
+            flex-direction: column;
+        }
+
         .btn-score {
             padding: 10px;
             font-weight: 900;
-            border-radius: 3px;
-            font-size: 20px;
+            font-size: 15px;
+        }
+
+        #undo-block {
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .undo-button {
+            padding: 10px;
+            margin-bottom: 5px;
+        }
+
+        hr {
+            border-top: 1px solid #000;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <script>
+        window.addEventListener("contextmenu", e => e.preventDefault());
+
+        var pointProgression = [0, 15, 30, 40];
+
+        var undoActions = [];
+        
         var statistics = {
             player1: {
                 name: 'Jogador 1',
@@ -217,11 +264,14 @@
                 },
             },
             team1: {
-                score: 0
+                score: 0,
+                gameScore: 0,
             },
             team2: {
-                score: 0
-            }
+                score: 0,
+                gameScore: 0,
+            },
+            games: []
         };
 
         function startGame() {
@@ -230,42 +280,110 @@
 
             var names = document.getElementsByClassName('player-name-config');
             for (var x = 0; x < names.length; x++) {
+                var id = names[x].id;
+                var rowNameElement = document.getElementById(id + '-name');
+
                 if (names[x].value) {
-                    var id = names[x].id;
                     var name = names[x].value;
-                    document.getElementById(id + '-name').innerText = name;
+                    rowNameElement.innerText = name;
                     statistics[id.replace('-', '')].name = name;
+                }
+
+                var team = names[x].dataset.team;
+                var teamButton = document.getElementById('team-' + team + '-score-button');
+                
+                if (teamButton.innerText) {
+                    teamButton.innerHTML += '<br />' + rowNameElement.innerText;
+                } else {
+                    teamButton.innerText = rowNameElement.innerText;
                 }
             }
             document.getElementById('statistics').classList.remove('hide');
         }
 
-        function wrong(player, stat, btn) {
-            statistics[player][stat].wrong++;
+        function wrong(player, stat, btn, value = 1) {
+            statistics[player][stat].wrong += value;
             btn.innerText = statistics[player][stat].wrong;
+ 
+            if (wrong.caller.name != 'undo') {
+                undoActions.push({function: 'wrong', params: Object.values(arguments).concat(-1)});
+            }
+
+            document.getElementById('undo-block').classList.remove('hide')
         }
 
-        function right(player, stat, btn) {
-            statistics[player][stat].right++;
+        function right(player, stat, btn, value = 1) {
+            statistics[player][stat].right += value;
             btn.innerText = statistics[player][stat].right;
+            
+            if (right.caller.name != 'undo') {
+                undoActions.push({function: 'right', params: Object.values(arguments).concat(-1)});
+            }
+
+            document.getElementById('undo-block').classList.remove('hide')
         }
 
-        function addPoint(team) {
+        function addPoint(team, value = 1) {
+            if (statistics['team' + team].gameScore === 3 && value === 1) {
+                finishGame(team);
+                return;
+            }
+
+            statistics['team' + team].gameScore += value;
+            document.getElementById('team-'+team+'-game-score').innerText = pointProgression[statistics['team' + team].gameScore];
+
+            if (addPoint.caller.name != 'undo') {
+                undoActions.push({function: 'addPoint', params: Object.values(arguments).concat(-1)});
+            }
+
+            document.getElementById('undo-block').classList.remove('hide')
+        }
+
+        function finishGame(team) {
+            statistics.games.push({team1: pointProgression[statistics.team1.gameScore], team2: pointProgression[statistics.team2.gameScore] });
+            statistics.team1.gameScore = 0;
+            statistics.team2.gameScore = 0;
+            document.getElementById('team-1-game-score').innerText = 0;
+            document.getElementById('team-2-game-score').innerText = 0;
             statistics['team' + team].score++;
-            document.getElementById('team-'+team+'-score').innerText = statistics['team' + team].score;
+            document.getElementById('team-' + team + '-score').innerText = statistics['team' + team].score;
+            undoActions.push({function: 'undoGame', params: [team]})
+        }
+
+        function undoGame(team) {
+            statistics['team' + team].score--;
+            document.getElementById('team-' + team + '-score').innerText = statistics['team' + team].score;
+            var game = statistics.games.pop();
+            document.getElementById('team-1-game-score').innerText = game.team1;
+            document.getElementById('team-2-game-score').innerText = game.team2;
+            statistics.team1.gameScore = pointProgression.indexOf(game.team1);
+            statistics.team2.gameScore = pointProgression.indexOf(game.team2);
+        }
+
+        function undo() {
+            if (undoActions.length === 0) {
+                return;
+            }
+
+            action = undoActions.pop();
+            window[action.function](...action.params);
+
+            if (undoActions.length === 0) {
+                document.getElementById('undo-block').classList.add('hide')
+            }
         }
     </script>
     <div id="config">
         <form>
             <h1>Equipe 1</h1>
             <div>
-                <input id="player-1" class="player-name-config" type="text" placeholder="Jogador 1">
-                <input id="player-2" class="player-name-config" type="text" placeholder="Jogador 2">
+                <input id="player-1" data-team="1" class="player-name-config" type="text" placeholder="Jogador 1">
+                <input id="player-2" data-team="1" class="player-name-config" type="text" placeholder="Jogador 2">
             </div>
             <h1>Equipe 2</h1>
             <div>
-                <input id="player-3" class="player-name-config" type="text" placeholder="Jogador 3">
-                <input id="player-4" class="player-name-config" type="text" placeholder="Jogador 4">
+                <input id="player-3" data-team="2" class="player-name-config" type="text" placeholder="Jogador 3">
+                <input id="player-4" data-team="2" class="player-name-config" type="text" placeholder="Jogador 4">
             </div>
             <button onClick="startGame()" class="config-btn bg-green">INICIAR</button>
         </form>
@@ -345,15 +463,31 @@
         </div>
         <div class="games">
             <h1>Games</h1>
-            <div class="score">
-                <button class="btn bg-green btn-score" onClick="addPoint('1')">Equipe 1</button>
-                <div>
-                    <span id="team-1-score">0</span>
+            <div class="teams-score">
+                <button id="team-1-score-button" class="btn bg-green btn-score" onClick="addPoint('1')"></button>
+                <div class="score">
+                    <div>
+                        <span id="team-1-game-score">0</span>
+                    </div>
                     <span>X</span>
-                    <span id="team-2-score">0</span>
+                    <div>
+                        <span id="team-2-game-score">0</span>
+                    </div>
                 </div>
-                <button class="btn bg-green btn-score" onClick="addPoint('2')">Equipe 2</button>
+                <button id="team-2-score-button" class="btn bg-green btn-score" onClick="addPoint('2')"></button>
             </div>
+            <hr>
+            <div class="total-score">
+                <div>
+                    <span class="team-total-score" id="team-1-score">0</span>
+                    <span>X</span>
+                    <span class="team-total-score" id="team-2-score">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="undo-block" class="hide">
+            <button class="btn bg-green undo-button" onClick="undo()">Desfazer última ação</button>
         </div>
     </div>
 
